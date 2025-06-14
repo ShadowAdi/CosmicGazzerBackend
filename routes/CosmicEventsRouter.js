@@ -1,5 +1,14 @@
 import express from "express";
-import { CheckAuth } from "../middlewares/AuthCheck";
+import { CheckAuth } from "../middlewares/AuthCheck.js";
+import {
+  AuthenticatedUserEvents,
+  CreateEvent,
+  DeleteEvent,
+  GetAllEvents,
+  GetEvent,
+  GetEventsByUser,
+  UpdateEvent,
+} from "../controllers/event-controller.js";
 
 export const CosmicEventsRouter = express.Router();
 

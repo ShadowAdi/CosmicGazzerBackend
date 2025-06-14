@@ -148,7 +148,7 @@ export const GetAllEvents = CustomTryCatch(async (req, res, next) => {
     sortOptions = { startTime: 1 };
   }
 
-  const events = EventModel.find(query)
+  const events = await EventModel.find(query)
     .sort(sortOptions)
     .populate("postedUserId", "name email bio");
   let message = "All Events Fetched";

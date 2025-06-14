@@ -1,0 +1,7 @@
+2025-06-14 19:16:50 [ERROR]: Token not provided or invalid format. Header: undefined
+2025-06-14 19:16:50 [ERROR]: Failed to get the error the status code is fail and the message is Token not provided or invalid format. Header: undefined
+2025-06-14 19:17:15 [ERROR]: Failed to get the error the status code is error and the message is Converting circular structure to JSON
+    --> starting at object with constructor 'MongoClient'
+    |     property 's' -> object with constructor 'Object'
+    |     property 'sessionPool' -> object with constructor 'ServerSessionPool'
+    --- property 'client' closes the circle
