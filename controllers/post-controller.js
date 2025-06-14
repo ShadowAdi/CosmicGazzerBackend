@@ -157,7 +157,7 @@ export const GetPost = CustomTryCatch(async (req, res) => {
   });
 });
 
-export const UpdatePost = CustomTryCatch(async (req, res) => {
+export const UpdatePost = CustomTryCatch(async (req, res, next) => {
   const postId = req.params.postId;
   const { sub, email } = req.user;
   if (!sub) {
@@ -187,6 +187,11 @@ export const UpdatePost = CustomTryCatch(async (req, res) => {
   if (!isAlreadyPost) {
     logger.error(`Post with Id: ${postId} do not exists`);
     return next(new AppError(`Post with Id: ${postId} do not exists`, 404));
+  }
+
+  if (isAlreadyPost.userId !== sub) {
+    logger.error(`You are not Authorized to update the post`);
+    return next(new AppError(`You are not Authorized to update the post`, 404));
   }
 
   const updatedPost = await PostModel.findByIdAndUpdate(postId, data, {
@@ -208,7 +213,7 @@ export const UpdatePost = CustomTryCatch(async (req, res) => {
   });
 });
 
-export const DeletedPost = CustomTryCatch(async (req, res) => {
+export const DeletedPost = CustomTryCatch(async (req, res, next) => {
   const postId = req.params.postId;
   const { sub, email } = req.user;
   if (!sub) {
@@ -238,6 +243,11 @@ export const DeletedPost = CustomTryCatch(async (req, res) => {
   if (!isAlreadyPost) {
     logger.error(`Post with Id: ${postId} do not exists`);
     return next(new AppError(`Post with Id: ${postId} do not exists`, 404));
+  }
+
+  if (isAlreadyPost.userId !== sub) {
+    logger.error(`You are not Authorized to update the post`);
+    return next(new AppError(`You are not Authorized to update the post`, 404));
   }
 
   const deletedPost = await PostModel.findByIdAndDelete(postId, data);
