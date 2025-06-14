@@ -102,9 +102,6 @@ export const GetAllEvents = CustomTryCatch(async (req, res, next) => {
     query.visibilityRegions = { $in: [region] };
   }
 
-  if (limit) {
-    query.limit = limit;
-  }
 
   if (upcoming === "true") {
     const currentTime = new Date();
@@ -150,6 +147,7 @@ export const GetAllEvents = CustomTryCatch(async (req, res, next) => {
 
   const events = await EventModel.find(query)
     .sort(sortOptions)
+    .limit(limit)
     .populate("postedUserId", "name email bio");
   let message = "All Events Fetched";
   if (type) message = `All ${type} events fetched`;
