@@ -139,10 +139,9 @@ export const GetPostBasedOnUser = CustomTryCatch(async (req, res, next) => {
 export const GetPost = CustomTryCatch(async (req, res) => {
   const postId = req.params.postId;
 
-  const findPost = await PostModel.findById(postId).populate(
-    "userId name email bio _id",
-    "eventId title type _id startTime endTime visibilityScore"
-  );
+  const findPost = await PostModel.findById(postId)
+    .populate("userId", "name email bio _id")
+    .populate("eventId", "title type _id startTime endTime visibilityScore");
   if (!findPost) {
     logger.error(`Failed to get post from db of id: ${postId}`);
     return next(
