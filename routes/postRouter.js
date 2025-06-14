@@ -16,10 +16,10 @@ import { CheckAuth } from "../middlewares/AuthCheck.js";
 export const PostRouter = express.Router();
 
 PostRouter.get("/", GetAllPosts);
-PostRouter.post("/:eventId", CreatePost);
+PostRouter.post("/:eventId", CheckAuth, CreatePost);
 PostRouter.get("/:eventId", GetPostBasedOnEvent);
 PostRouter.get("/user/:userId", GetPostBasedOnUser);
-PostRouter.get("/me", AuthenticatedUserPosts);
+PostRouter.get("/authenticated/me", CheckAuth,AuthenticatedUserPosts);
 PostRouter.get("/post/:postId", GetPost);
 PostRouter.patch("/post/:postId", CheckAuth, UpdatePost);
 PostRouter.delete("/post/:postId", CheckAuth, DeletedPost);

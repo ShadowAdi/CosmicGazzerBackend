@@ -1,6 +1,7 @@
 import { EventModel } from "../models/EventSchema.js";
 import { PostModel } from "../models/PostSchema.js";
 import { UserModel } from "../models/UserSchema.js";
+import { AppError } from "../utils/AppError.js";
 import { CustomTryCatch } from "../utils/CustomTryCatch.js";
 import { logger } from "../utils/logger.js";
 
@@ -101,10 +102,9 @@ export const GetPostBasedOnEvent = CustomTryCatch(async (req, res) => {
       new AppError(`Failed to get the event with the id: ${eventId}`, 404)
     );
   }
-  const posts = await PostModel.find({ eventId }).populate(
-    "userId name email bio",
-    "eventId name type startTime endTime moonPhase"
-  );
+  const posts = await PostModel.find({ eventId })
+    .populate("userId", "name email bio")
+    .populate("eventId", "name type startTime endTime moonPhase");
 
   return res.status(200).json({
     statusCode: 200,
@@ -114,8 +114,8 @@ export const GetPostBasedOnEvent = CustomTryCatch(async (req, res) => {
   });
 });
 
-export const GetPostBasedOnUser = CustomTryCatch(async (req, res) => {
-  const userId = req.params.user;
+export const GetPostBasedOnUser = CustomTryCatch(async (req, res, next) => {
+  const userId = req.params.userId;
 
   const findUser = await UserModel.findById(userId);
   if (!findUser) {
@@ -124,10 +124,9 @@ export const GetPostBasedOnUser = CustomTryCatch(async (req, res) => {
       new AppError(`Failed to get the user with the id: ${userId}`, 404)
     );
   }
-  const posts = await PostModel.find({ userId }).populate(
-    "userId name email bio",
-    "eventId name type startTime endTime moonPhase"
-  );
+  const posts = await PostModel.find({ userId })
+    .populate("userId", "name email bio")
+    .populate("eventId", "name type startTime endTime moonPhase");
 
   return res.status(200).json({
     statusCode: 200,
@@ -259,13 +258,14 @@ export const DeletedPost = CustomTryCatch(async (req, res) => {
   });
 });
 
-export const AuthenticatedUserPosts = CustomTryCatch(async (req, res) => {
+export const AuthenticatedUserPosts = CustomTryCatch(async (req, res, next) => {
   const { sub, email } = req.user;
+
   if (!sub) {
-    logger.error(`Failed to get id from req.user: ${req.user}`);
+    logger.error(`Failed to get id from req.user: ${JSON.stringify(req.user)}`);
     return next(
       new AppError(
-        `User Id is required. For the request user id is not present`,
+        `User ID is required. The request did not contain a valid user.`,
         404
       )
     );
@@ -273,20 +273,22 @@ export const AuthenticatedUserPosts = CustomTryCatch(async (req, res) => {
 
   const findUser = await UserModel.findById(sub).select("-password");
   if (!findUser) {
-    logger.error(`Failed to get user from db of id: ${sub}`);
+    logger.error(`Failed to get user from DB with id: ${sub}`);
     return next(
       new AppError(
-        `Failed to get the user with the id: ${sub} and email: ${email}`,
+        `Failed to get the user with id: ${sub} and email: ${email}`,
         404
       )
     );
   }
 
-  const postFound = await PostModel.find({ userId: sub });
+  const postFound = await PostModel.find({ userId: sub })
+    .populate("eventId", "name type startTime endTime")
+    .sort({ createdAt: -1 }); // Optional: latest first
 
   return res.status(200).json({
     statusCode: 200,
-    message: "Post Deleted",
+    message: "User's Posts Fetched Successfully",
     postFound,
     success: true,
     count: postFound.length,
