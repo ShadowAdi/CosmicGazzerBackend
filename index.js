@@ -8,6 +8,9 @@ import cors from "cors";
 import { CustomErrorHandler } from "./middlewares/errorHandler.js";
 import { AuthRouter } from "./routes/AuthRoutes.js";
 import { DBConnect } from "./config/dbConnect.js";
+import "./jobs/reminderNotifier.js"; // Make sure the path is correct
+import { NotifyRouter } from "./routes/NotifyRoute.js";
+
 dotenv.configDotenv();
 
 const app = express();
@@ -24,6 +27,8 @@ app.use("/api/users", UserRouter);
 app.use("/api/posts", PostRouter);
 app.use("/api/cosmic-events", CosmicEventsRouter);
 app.use("/api/auth", AuthRouter);
+app.use("/api/notify", NotifyRouter);
+
 
 app.use(CustomErrorHandler);
 

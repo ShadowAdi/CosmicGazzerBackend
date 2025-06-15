@@ -7,6 +7,7 @@ import {
   GetAllEvents,
   GetEvent,
   GetEventsByUser,
+  JoinEvent,
   UpdateEvent,
 } from "../controllers/event-controller.js";
 
@@ -22,3 +23,5 @@ CosmicEventsRouter.post("/create", CreateEvent);
 CosmicEventsRouter.get("/my/events", AuthenticatedUserEvents);
 CosmicEventsRouter.patch("/update/:eventId", UpdateEvent);
 CosmicEventsRouter.delete("/delete/:eventId", DeleteEvent);
+CosmicEventsRouter.patch("/join/:eventId", JoinEvent);
+

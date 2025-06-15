@@ -45,6 +45,12 @@ const UserSchema = new mongoose.Schema(
         },
       },
     },
+    savedEvents: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Event",
+      },
+    ],
   },
   {
     timeStamps: true,

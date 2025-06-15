@@ -3,6 +3,7 @@ import { UserModel } from "../models/UserSchema.js";
 import { PostModel } from "../models/PostSchema.js";
 import { CustomTryCatch } from "../utils/CustomTryCatch.js";
 import { logger } from "../utils/logger.js";
+import { ReminderModel } from "../models/ReminderSchema.js";
 
 export const CreateEvent = CustomTryCatch(async (req, res, next) => {
   const { sub, email } = req.user;
@@ -101,7 +102,6 @@ export const GetAllEvents = CustomTryCatch(async (req, res, next) => {
   if (region) {
     query.visibilityRegions = { $in: [region] };
   }
-
 
   if (upcoming === "true") {
     const currentTime = new Date();
@@ -356,6 +356,7 @@ export const DeleteEvent = CustomTryCatch(async (req, res, next) => {
 export const AuthenticatedUserEvents = CustomTryCatch(
   async (req, res, next) => {
     const { sub, email } = req.user;
+
     if (!sub) {
       logger.error(`Failed to get id from req.user: ${req.user}`);
       return next(
@@ -391,3 +392,63 @@ export const AuthenticatedUserEvents = CustomTryCatch(
     });
   }
 );
+
+export const JoinEvent = CustomTryCatch(async (req, res, next) => {
+  const { sub, email } = req.body;
+  const eventId = req.params.eventId;
+
+  if (!eventId || !sub) {
+    logger.error(`Missing user or event ID`);
+    return next(new AppError(`User or Event ID is missing from request`, 400));
+  }
+
+  const findUser = await UserModel.findById(sub).select("-password");
+  if (!findUser) {
+    logger.error(`User not found: ${sub}`);
+    return next(new AppError(`User not found`, 404));
+  }
+
+  const eventFound = await EventModel.findById(eventId).populate(
+    "postedUserId",
+    "name email bio"
+  );
+  if (!eventFound) {
+    logger.error(`Event not found: ${eventId}`);
+    return next(new AppError(`Event not found`, 404));
+  }
+
+  const hasAlreadyJoined = eventFound.interestedUserIds.includes(sub);
+  const userFoundInteresting = findUser.savedEvents.includes(eventId);
+
+  if (hasAlreadyJoined && userFoundInteresting) {
+    logger.error(`User already joined event`);
+    return next(new AppError(`You have already joined this event.`, 409));
+  }
+
+  // Push user and event references
+  eventFound.interestedUserIds.push(findUser._id);
+  findUser.savedEvents.push(eventFound._id);
+
+  await eventFound.save();
+  await findUser.save();
+
+  // 🔔 Create Reminder
+  const notifyAt = new Date(eventFound.startTime);
+  notifyAt.setHours(notifyAt.getHours() - 1); // Notify 1 hour before event
+
+  const reminder = new ReminderModel({
+    userId: findUser._id,
+    eventId: eventFound._id,
+    notifyAt,
+    notified: false,
+  });
+
+  await reminder.save();
+
+  return res.status(200).json({
+    statusCode: 200,
+    message: "User has joined the event and reminder is set.",
+    event: eventFound,
+    success: true,
+  });
+});
