@@ -69,7 +69,6 @@ export const CreateUser = CustomTryCatch(async (req, res, next) => {
   return res.status(201).json({
     statusCode: 201,
     message: "User is created",
-    user: newUser,
     success: true,
   });
 });
