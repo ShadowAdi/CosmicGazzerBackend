@@ -91,9 +91,9 @@ export const GetAllUsers = CustomTryCatch(async (req, res, next) => {
 
 export const GetUser = CustomTryCatch(async (req, res, next) => {
   const userId = req.params.userId;
-  if (!userId) {
-    logger.error(`Failed to get userId `);
 
+  if (!userId) {
+    logger.error(`Failed to get userId`);
     return next(
       new AppError(
         `User Id is required. For the request user id is not present`,
@@ -101,7 +101,19 @@ export const GetUser = CustomTryCatch(async (req, res, next) => {
       )
     );
   }
-  const findUser = await UserModel.findById(userId).select("-password");
+
+  const findUser = await UserModel.findById(userId)
+    .select("-password")
+    .populate({
+      path: "savedEvents",
+      select:
+        "name description type startTime endTime visibilityRegions moonPhase source postedUserId",
+      populate: {
+        path: "postedUserId",
+        select: "name email",
+      },
+    });
+
   if (!findUser) {
     logger.error(`Failed to get user from db of id: ${userId}`);
     return next(
@@ -118,7 +130,7 @@ export const GetUser = CustomTryCatch(async (req, res, next) => {
 });
 
 export const DeleteUser = CustomTryCatch(async (req, res, next) => {
-  const { sub,email } = req.user;
+  const { sub, email } = req.user;
   if (!sub) {
     logger.error(`Failed to get  id from req.user: ${req.user}`);
     return next(
