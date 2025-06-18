@@ -148,7 +148,11 @@ export const GetAllEvents = CustomTryCatch(async (req, res, next) => {
   const events = await EventModel.find(query)
     .sort(sortOptions)
     .limit(limit)
-    .populate("postedUserId", "name email bio");
+    .populate({
+      path: "postedUserId",
+      select: "name email _id bio",
+    });
+
   let message = "All Events Fetched";
   if (type) message = `All ${type} events fetched`;
   if (region) message = `Events visible in ${region} fetched`;
