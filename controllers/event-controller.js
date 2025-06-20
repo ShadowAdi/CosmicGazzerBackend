@@ -399,7 +399,8 @@ export const AuthenticatedUserEvents = CustomTryCatch(
 );
 
 export const JoinEvent = CustomTryCatch(async (req, res, next) => {
-  const { sub, email } = req.body;
+  const { sub } = req.user;
+
   const eventId = req.params.eventId;
 
   if (!eventId || !sub) {
