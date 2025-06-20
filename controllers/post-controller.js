@@ -5,7 +5,7 @@ import { AppError } from "../utils/AppError.js";
 import { CustomTryCatch } from "../utils/CustomTryCatch.js";
 import { logger } from "../utils/logger.js";
 
-export const CreatePost = CustomTryCatch(async (req, res) => {
+export const CreatePost = CustomTryCatch(async (req, res,next) => {
   const { sub, email } = req.user;
   if (!sub) {
     logger.error(`Failed to get id from req.user: ${req.user}`);
@@ -81,7 +81,7 @@ export const CreatePost = CustomTryCatch(async (req, res) => {
   });
 });
 
-export const GetAllPosts = CustomTryCatch(async (req, res) => {
+export const GetAllPosts = CustomTryCatch(async (req, res,next) => {
   const posts = await PostModel.find().populate("userId", "name email bio");
 
   return res.status(200).json({
@@ -92,7 +92,7 @@ export const GetAllPosts = CustomTryCatch(async (req, res) => {
   });
 });
 
-export const GetPostBasedOnEvent = CustomTryCatch(async (req, res) => {
+export const GetPostBasedOnEvent = CustomTryCatch(async (req, res,next) => {
   const eventId = req.params.eventId;
 
   const findEvent = await EventModel.findById(eventId);
@@ -136,7 +136,7 @@ export const GetPostBasedOnUser = CustomTryCatch(async (req, res, next) => {
   });
 });
 
-export const GetPost = CustomTryCatch(async (req, res) => {
+export const GetPost = CustomTryCatch(async (req, res,next) => {
   const postId = req.params.postId;
 
   const findPost = await PostModel.findById(postId)
