@@ -4,6 +4,7 @@ import { PostModel } from "../models/PostSchema.js";
 import { CustomTryCatch } from "../utils/CustomTryCatch.js";
 import { logger } from "../utils/logger.js";
 import { ReminderModel } from "../models/ReminderSchema.js";
+import { AppError } from "../utils/AppError.js";
 
 export const CreateEvent = CustomTryCatch(async (req, res, next) => {
   const { sub, email } = req.user;
