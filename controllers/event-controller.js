@@ -152,6 +152,7 @@ export const GetAllEvents = CustomTryCatch(async (req, res, next) => {
       path: "postedUserId",
       select: "name email _id bio",
     });
+  console.log("events ",events)
 
   let message = "All Events Fetched";
   if (type) message = `All ${type} events fetched`;
