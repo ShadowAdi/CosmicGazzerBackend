@@ -245,9 +245,10 @@ export const DeletedPost = CustomTryCatch(async (req, res, next) => {
     return next(new AppError(`Post with Id: ${postId} do not exists`, 404));
   }
 
-  if (isAlreadyPost.userId !== sub) {
-    logger.error(`You are not Authorized to update the post`);
-    return next(new AppError(`You are not Authorized to update the post`, 404));
+
+if (String(isAlreadyPost.userId) !== sub) {
+    logger.error(`You are not Authorized to delete the post`);
+    return next(new AppError(`You are not Authorized to delete the post`, 404));
   }
 
   const deletedPost = await PostModel.findByIdAndDelete(postId, data);
